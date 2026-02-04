@@ -114,32 +114,41 @@
   const winScreen = document.getElementById("winScreen");
   const gameBox = document.getElementById("gameBox");
 
-  function randomPosition(btn) {
-    const padding = 20;
-    const x = Math.random() * (window.innerWidth - btn.offsetWidth - padding);
-    const y = Math.random() * (window.innerHeight - btn.offsetHeight - padding);
-    btn.style.left = x + "px";
-    btn.style.top = y + "px";
+  let fallInterval;
+  let fallSpeed = 2; // lower = easier
+
+  function startFalling() {
+    let x = Math.random() * (window.innerWidth - yesBtn.offsetWidth);
+    let y = -50;
+
+    yesBtn.style.left = x + "px";
+    yesBtn.style.top = y + "px";
+
+    fallInterval = setInterval(() => {
+      y += fallSpeed;
+      yesBtn.style.top = y + "px";
+
+      // If YES reaches bottom → reset
+      if (y > window.innerHeight) {
+        clearInterval(fallInterval);
+        startFalling();
+      }
+    }, 20);
   }
 
-  // Initial positions
-  randomPosition(yesBtn);
-  randomPosition(noBtn);
+  // NO button runs away forever 😈
+  function moveNo() {
+    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+  }
 
-  // YES: slow + reachable (mini-game)
-  yesBtn.addEventListener("mouseenter", () => {
-    yesBtn.style.transition = "0.4s ease";
-    randomPosition(yesBtn);
-  });
+  noBtn.addEventListener("mouseenter", moveNo);
 
-  // NO: impossible 😝
-  noBtn.addEventListener("mouseenter", () => {
-    noBtn.style.transition = "0.1s ease";
-    randomPosition(noBtn);
-  });
-
-  // Winning the game
+  // WIN CONDITION
   yesBtn.addEventListener("click", () => {
+    clearInterval(fallInterval);
     yesBtn.style.display = "none";
     noBtn.style.display = "none";
     gameBox.style.display = "none";
@@ -147,6 +156,7 @@
     startHearts();
   });
 
+  // Hearts animation
   function startHearts() {
     setInterval(() => {
       const heart = document.createElement("div");
@@ -156,8 +166,12 @@
       heart.style.bottom = "0";
       document.body.appendChild(heart);
       setTimeout(() => heart.remove(), 5000);
-    }, 300);
+    }, 250);
   }
+
+  // Start the game
+  startFalling();
+  moveNo();
 </script>
 
 </body>
